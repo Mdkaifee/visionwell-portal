@@ -18,7 +18,13 @@ export const bookAppointment = createServerFn({ method: "POST" })
   .validator(bookingInput)
   .handler(async ({ data }) => {
     const { callProxy } = await import("@/integrations/mongo/proxy-client.server");
-    return callProxy<Appointment>("/appointments", { method: "POST", body: JSON.stringify(data) });
+    const created = await callProxy<Appointment>("/appointments", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+    const { notifyAppointmentStatus } = await import("@/lib/notify-email.server");
+    await notifyAppointmentStatus(created);
+    return created;
   });
 
 export const listAppointments = createServerFn({ method: "GET" })
