@@ -69,7 +69,7 @@ function EyewearPage() {
           {filtered.map((frame, i) => (
             <Reveal key={frame.id} delay={(i % 6) * 60}>
               <div className="group h-full overflow-hidden rounded-2xl border border-border/70 bg-card shadow-soft transition-transform duration-500 hover:-translate-y-1">
-                <div className="flex aspect-[4/3] items-center justify-center bg-secondary/60">
+                <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_50%_35%,var(--gold-soft),var(--secondary)_75%)]">
                   {frame.imageUrl ? (
                     <img
                       src={frame.imageUrl}
@@ -77,7 +77,10 @@ function EyewearPage() {
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <Glasses className="size-10 text-muted-foreground/50" />
+                    <Glasses
+                      className="size-14 text-primary/40 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3"
+                      strokeWidth={1.25}
+                    />
                   )}
                 </div>
                 <div className="p-6">

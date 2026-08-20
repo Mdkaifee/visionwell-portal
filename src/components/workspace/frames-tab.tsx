@@ -1,6 +1,6 @@
-import { useState, type FormEvent } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Glasses, Pencil, Plus, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,8 @@ import {
 import { listFrames, createFrame, updateFrame, deleteFrame } from "@/server-functions/frames";
 import type { Frame } from "@/server-functions/types";
 
+const MAX_IMAGE_BYTES = 1.5 * 1024 * 1024;
+
 export function FramesTab() {
   const queryClient = useQueryClient();
   const { data: frames, isLoading } = useQuery({
@@ -39,6 +41,7 @@ export function FramesTab() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Frame | null>(null);
   const [inStock, setInStock] = useState(true);
+  const [imageUrl, setImageUrl] = useState("");
 
   const saveMutation = useMutation({
     mutationFn: async (input: Omit<Frame, "id" | "sortOrder" | "createdAt">) => {
@@ -65,7 +68,20 @@ export function FramesTab() {
   function openFor(frame: Frame | null) {
     setEditing(frame);
     setInStock(frame?.inStock ?? true);
+    setImageUrl(frame?.imageUrl ?? "");
     setOpen(true);
+  }
+
+  function handlePhoto(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > MAX_IMAGE_BYTES) {
+      toast.error("Photo must be under 1.5MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setImageUrl(String(reader.result ?? ""));
+    reader.readAsDataURL(file);
   }
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -78,7 +94,7 @@ export function FramesTab() {
       shape: String(form.get("shape") ?? ""),
       colour: String(form.get("colour") ?? ""),
       price: Number(form.get("price") ?? 0),
-      imageUrl: String(form.get("imageUrl") ?? ""),
+      imageUrl,
       inStock,
     });
   }
@@ -145,13 +161,33 @@ export function FramesTab() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="imageUrl">Image URL (optional)</Label>
-                <Input
-                  id="imageUrl"
-                  name="imageUrl"
-                  defaultValue={editing?.imageUrl}
-                  placeholder="https://…"
-                />
+                <Label>Photo (optional)</Label>
+                <div className="flex items-center gap-3">
+                  <div className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-xl border border-border/70 bg-secondary/60">
+                    {imageUrl ? (
+                      <img src={imageUrl} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      <Glasses className="size-6 text-muted-foreground/50" />
+                    )}
+                  </div>
+                  <div className="flex-1 space-y-1.5">
+                    <label className="flex w-fit cursor-pointer items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground">
+                      <Upload className="size-3.5" /> Upload from phone
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handlePhoto}
+                      />
+                    </label>
+                    <Input
+                      value={imageUrl.startsWith("data:") ? "" : imageUrl}
+                      onChange={(e) => setImageUrl(e.target.value)}
+                      placeholder="or paste an image URL"
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                </div>
               </div>
               <div className="flex items-center justify-between rounded-lg border border-border/70 px-4 py-3">
                 <Label htmlFor="inStock" className="cursor-pointer">
@@ -180,21 +216,30 @@ export function FramesTab() {
               key={f.id}
               className="flex items-start justify-between gap-4 rounded-2xl border border-border/70 bg-card p-5"
             >
-              <div>
-                <p className="font-medium">
-                  {f.name}{" "}
-                  <span className="text-muted-foreground">
-                    · ₹{f.price.toLocaleString("en-IN")}
-                  </span>
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {f.brand} · {f.material} · {f.shape}
-                </p>
-                {!f.inStock && (
-                  <p className="mt-1 text-xs uppercase tracking-wide text-destructive">
-                    Out of stock
+              <div className="flex items-start gap-3">
+                <div className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-lg border border-border/70 bg-secondary/60">
+                  {f.imageUrl ? (
+                    <img src={f.imageUrl} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    <Glasses className="size-5 text-muted-foreground/50" />
+                  )}
+                </div>
+                <div>
+                  <p className="font-medium">
+                    {f.name}{" "}
+                    <span className="text-muted-foreground">
+                      · ₹{f.price.toLocaleString("en-IN")}
+                    </span>
                   </p>
-                )}
+                  <p className="text-sm text-muted-foreground">
+                    {f.brand} · {f.material} · {f.shape}
+                  </p>
+                  {!f.inStock && (
+                    <p className="mt-1 text-xs uppercase tracking-wide text-destructive">
+                      Out of stock
+                    </p>
+                  )}
+                </div>
               </div>
               <div className="flex shrink-0 gap-1">
                 <Button

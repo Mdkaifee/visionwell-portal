@@ -8,6 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Dialog,
   DialogContent,
   DialogFooter,
@@ -15,6 +22,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { ChipPicker } from "./chip-picker";
+import {
+  POWER_VALUES,
+  AXIS_VALUES,
+  ADD_VALUES,
+  PD_VALUES,
+  DIAGNOSIS_OPTIONS,
+  LENS_ADVICE_OPTIONS,
+  FRAME_ADVICE_OPTIONS,
+} from "@/lib/optometry-values";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,6 +54,46 @@ import { printPrescription } from "./print-prescription";
 
 const MAX_FILE_BYTES = 8 * 1024 * 1024;
 const emptySide = { sph: "", cyl: "", axis: "" };
+
+function toList(value: string): string[] {
+  return value
+    ? value
+        .split(",")
+        .map((v) => v.trim())
+        .filter(Boolean)
+    : [];
+}
+function toCsv(list: string[]): string {
+  return list.join(", ");
+}
+
+// Tap-only numeric picker for refraction values — a plain Select with a "—"
+// (not set) option, since Radix disallows an empty-string item value.
+function ValueSelect({
+  value,
+  options,
+  onChange,
+}: {
+  value: string;
+  options: string[];
+  onChange: (value: string) => void;
+}) {
+  return (
+    <Select value={value || "none"} onValueChange={(v) => onChange(v === "none" ? "" : v)}>
+      <SelectTrigger className="h-9">
+        <SelectValue placeholder="—" />
+      </SelectTrigger>
+      <SelectContent className="max-h-64">
+        <SelectItem value="none">—</SelectItem>
+        {options.map((option) => (
+          <SelectItem key={option} value={option}>
+            {option}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
 
 type FormState = {
   patientName: string;
@@ -228,7 +285,7 @@ export function PrescriptionsTab() {
 
               <div className="rounded-xl border border-border/70 p-4">
                 <p className="mb-3 text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                  Refraction
+                  Refraction — tap to pick, nothing to type
                 </p>
                 <div className="grid grid-cols-[auto_1fr_1fr_1fr] items-center gap-2 text-sm">
                   <span />
@@ -237,43 +294,37 @@ export function PrescriptionsTab() {
                   <span className="text-center text-xs text-muted-foreground">AXIS</span>
 
                   <span className="text-xs text-muted-foreground">Right (OD)</span>
-                  <Input
+                  <ValueSelect
                     value={form.right.sph}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, right: { ...f.right, sph: e.target.value } }))
-                    }
+                    options={POWER_VALUES}
+                    onChange={(v) => setForm((f) => ({ ...f, right: { ...f.right, sph: v } }))}
                   />
-                  <Input
+                  <ValueSelect
                     value={form.right.cyl}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, right: { ...f.right, cyl: e.target.value } }))
-                    }
+                    options={POWER_VALUES}
+                    onChange={(v) => setForm((f) => ({ ...f, right: { ...f.right, cyl: v } }))}
                   />
-                  <Input
+                  <ValueSelect
                     value={form.right.axis}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, right: { ...f.right, axis: e.target.value } }))
-                    }
+                    options={AXIS_VALUES}
+                    onChange={(v) => setForm((f) => ({ ...f, right: { ...f.right, axis: v } }))}
                   />
 
                   <span className="text-xs text-muted-foreground">Left (OS)</span>
-                  <Input
+                  <ValueSelect
                     value={form.left.sph}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, left: { ...f.left, sph: e.target.value } }))
-                    }
+                    options={POWER_VALUES}
+                    onChange={(v) => setForm((f) => ({ ...f, left: { ...f.left, sph: v } }))}
                   />
-                  <Input
+                  <ValueSelect
                     value={form.left.cyl}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, left: { ...f.left, cyl: e.target.value } }))
-                    }
+                    options={POWER_VALUES}
+                    onChange={(v) => setForm((f) => ({ ...f, left: { ...f.left, cyl: v } }))}
                   />
-                  <Input
+                  <ValueSelect
                     value={form.left.axis}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, left: { ...f.left, axis: e.target.value } }))
-                    }
+                    options={AXIS_VALUES}
+                    onChange={(v) => setForm((f) => ({ ...f, left: { ...f.left, axis: v } }))}
                   />
                 </div>
               </div>
@@ -281,40 +332,44 @@ export function PrescriptionsTab() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Add power</Label>
-                  <Input
+                  <ValueSelect
                     value={form.addPower}
-                    onChange={(e) => setForm((f) => ({ ...f, addPower: e.target.value }))}
+                    options={ADD_VALUES}
+                    onChange={(v) => setForm((f) => ({ ...f, addPower: v }))}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>PD</Label>
-                  <Input
+                  <Label>PD (mm)</Label>
+                  <ValueSelect
                     value={form.pd}
-                    onChange={(e) => setForm((f) => ({ ...f, pd: e.target.value }))}
+                    options={PD_VALUES}
+                    onChange={(v) => setForm((f) => ({ ...f, pd: v }))}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label>Lens advice</Label>
-                <Input
-                  value={form.lensAdvice}
-                  onChange={(e) => setForm((f) => ({ ...f, lensAdvice: e.target.value }))}
+                <ChipPicker
+                  options={LENS_ADVICE_OPTIONS}
+                  value={toList(form.lensAdvice)}
+                  onChange={(list) => setForm((f) => ({ ...f, lensAdvice: toCsv(list) }))}
                 />
               </div>
               <div className="space-y-2">
                 <Label>Frame advice</Label>
-                <Input
-                  value={form.frameAdvice}
-                  onChange={(e) => setForm((f) => ({ ...f, frameAdvice: e.target.value }))}
+                <ChipPicker
+                  options={FRAME_ADVICE_OPTIONS}
+                  value={toList(form.frameAdvice)}
+                  onChange={(list) => setForm((f) => ({ ...f, frameAdvice: toCsv(list) }))}
                 />
               </div>
               <div className="space-y-2">
-                <Label>Diagnosis (comma separated)</Label>
-                <Input
-                  value={form.diagnosis}
-                  onChange={(e) => setForm((f) => ({ ...f, diagnosis: e.target.value }))}
-                  placeholder="Myopia, Astigmatism"
+                <Label>Diagnosis</Label>
+                <ChipPicker
+                  options={DIAGNOSIS_OPTIONS}
+                  value={toList(form.diagnosis)}
+                  onChange={(list) => setForm((f) => ({ ...f, diagnosis: toCsv(list) }))}
                 />
               </div>
               <div className="space-y-2">
