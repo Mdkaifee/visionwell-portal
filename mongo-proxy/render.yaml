@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: misha-mongo-proxy
+    runtime: node
+    plan: free
+    rootDir: mongo-proxy
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: PROXY_SECRET
+        sync: false

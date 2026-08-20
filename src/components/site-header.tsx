@@ -1,8 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Menu, X } from "lucide-react";
 
-import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 const links = [
@@ -13,24 +12,10 @@ const links = [
   { to: "/contact", label: "Contact" },
 ] as const;
 
-export function SiteHeader() {
+export function SiteHeader({ doctor }: { doctor: { email: string; name: string } | null }) {
   const [open, setOpen] = useState(false);
-  const [signedIn, setSignedIn] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    let active = true;
-    void supabase.auth.getSession().then(({ data }) => {
-      if (active) setSignedIn(Boolean(data.session));
-    });
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSignedIn(Boolean(session));
-    });
-    return () => {
-      active = false;
-      sub.subscription.unsubscribe();
-    };
-  }, []);
+  const signedIn = Boolean(doctor);
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/70 bg-background/80 backdrop-blur-md">
@@ -40,9 +25,7 @@ export function SiteHeader() {
             <span className="size-2 rounded-full bg-gold transition-transform duration-500 group-hover:scale-150" />
           </span>
           <span className="leading-none">
-            <span className="block font-display text-xl tracking-tight">
-              Misha Eye Care
-            </span>
+            <span className="block font-display text-xl tracking-tight">Misha Eye Care</span>
             <span className="block text-[10px] uppercase tracking-[0.32em] text-muted-foreground">
               &amp; Optical · Jalandhar
             </span>
