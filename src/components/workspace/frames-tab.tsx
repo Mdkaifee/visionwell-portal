@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Glasses, Pencil, Plus, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 
+import { FrameArt } from "@/components/frame-art";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -221,7 +222,7 @@ export function FramesTab() {
                   {f.imageUrl ? (
                     <img src={f.imageUrl} alt="" className="h-full w-full object-cover" />
                   ) : (
-                    <Glasses className="size-5 text-muted-foreground/50" />
+                    <FrameArt shape={f.shape} colour={f.colour} className="h-full w-full p-1" />
                   )}
                 </div>
                 <div>

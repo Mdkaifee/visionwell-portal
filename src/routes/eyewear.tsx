@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { ArrowRight, Glasses } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 import { Reveal } from "@/components/reveal";
+import { FrameArt } from "@/components/frame-art";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { listFrames } from "@/server-functions/frames";
@@ -77,9 +78,10 @@ function EyewearPage() {
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <Glasses
-                      className="size-14 text-primary/40 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3"
-                      strokeWidth={1.25}
+                    <FrameArt
+                      shape={frame.shape}
+                      colour={frame.colour}
+                      className="h-full w-full p-4 transition-transform duration-500 group-hover:scale-105"
                     />
                   )}
                 </div>
