@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Trash2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -92,22 +92,28 @@ export function AppointmentsTab() {
                 {a.preferredDate || "—"} {a.preferredTime}
               </TableCell>
               <TableCell>
-                <Select
-                  value={a.status}
-                  onValueChange={(status) => statusMutation.mutate({ id: a.id, status })}
-                >
-                  <SelectTrigger className="h-8 w-32">
-                    <SelectValue>
-                      <Badge variant={statusVariant[a.status]}>{a.status}</Badge>
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="confirmed">Confirmed</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="cancelled">Cancelled</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="flex items-center gap-2">
+                  <Select
+                    value={a.status}
+                    onValueChange={(status) => statusMutation.mutate({ id: a.id, status })}
+                    disabled={statusMutation.isPending && statusMutation.variables?.id === a.id}
+                  >
+                    <SelectTrigger className="h-8 w-32">
+                      <SelectValue>
+                        <Badge variant={statusVariant[a.status]}>{a.status}</Badge>
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="confirmed">Confirmed</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {statusMutation.isPending && statusMutation.variables?.id === a.id && (
+                    <Loader2 className="size-4 animate-spin text-muted-foreground" />
+                  )}
+                </div>
               </TableCell>
               <TableCell className="text-right">
                 <Button

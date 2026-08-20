@@ -12,6 +12,11 @@ function getTransporter() {
     transporter = nodemailer.createTransport({
       service: "gmail",
       auth: { user, pass },
+      // Some hosts throttle/block outbound SMTP; fail fast instead of hanging
+      // the request (and the doctor's UI) for minutes.
+      connectionTimeout: 8000,
+      greetingTimeout: 8000,
+      socketTimeout: 8000,
     });
   }
   return transporter;

@@ -50,6 +50,9 @@ export async function notifyAppointmentStatus(appointment: Appointment) {
     const { callProxy } = await import("@/integrations/mongo/proxy-client.server");
     await callProxy("/send-email", {
       method: "POST",
+      // A slow/blocked SMTP path must never stall the appointment update
+      // itself — bail out well before the doctor's UI would notice a delay.
+      signal: AbortSignal.timeout(12_000),
       body: JSON.stringify({
         to,
         subject: `Your appointment is ${copy.subject} — Misha Eye Care & Optical`,
