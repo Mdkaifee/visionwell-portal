@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { ObjectId } from "mongodb";
 import { getCollection, toPublic } from "./db.js";
 import { makeCatalogRouter, str, num, bool } from "./catalog-router.js";
+import { sendMail } from "./mailer.js";
 
 const app = express();
 app.use(cors());
@@ -23,6 +24,27 @@ app.use((req, res, next) => {
 });
 
 const MAX_FILE_BASE64_CHARS = 11_000_000; // ~8MB original file, base64-inflated
+
+// ---- Outgoing email (via the doctor's own Gmail account, no domain needed) ----
+app.post("/send-email", async (req, res) => {
+  const to = str(req.body?.to);
+  const subject = str(req.body?.subject);
+  const text = str(req.body?.text);
+  const html = str(req.body?.html);
+  if (!to || !subject || (!text && !html)) {
+    return res.status(400).json({ error: "to, subject and text/html are required" });
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
+    return res.status(400).json({ error: "Invalid recipient address" });
+  }
+  try {
+    await sendMail({ to, subject, text, html });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("send-email failed:", err);
+    res.status(502).json({ error: "Failed to send email" });
+  }
+});
 
 // ---- Doctor login -----------------------------------------------------
 app.post("/doctors/login", async (req, res) => {

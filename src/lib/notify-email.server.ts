@@ -1,4 +1,3 @@
-import { sendLovableEmail, EmailAPIError } from "@lovable.dev/email-js";
 import type { Appointment } from "@/server-functions/types";
 
 const STATUS_COPY: Record<string, { subject: string; headline: string }> = {
@@ -8,30 +7,13 @@ const STATUS_COPY: Record<string, { subject: string; headline: string }> = {
   cancelled: { subject: "cancelled", headline: "Your appointment has been cancelled" },
 };
 
-function defaultFrom() {
-  return (
-    process.env["NOTIFICATIONS_FROM_EMAIL"] ||
-    "Misha Eye Care & Optical <notifications@mishaeyecare.in>"
-  );
-}
-
-function senderDomainFrom(from: string): string {
-  const explicit = process.env["NOTIFICATIONS_SENDER_DOMAIN"];
-  if (explicit) return explicit;
-  return from.match(/@([^\s>]+)/)?.[1] ?? "mishaeyecare.in";
-}
-
 // Best-effort: a failed notification must never break the appointment update
-// itself, so every error is caught and logged here rather than thrown.
+// itself, so every error is caught and logged here rather than thrown. Sent
+// through mongo-proxy (the doctor's own Gmail account, via SMTP) rather than
+// a third-party email API, since that needs no domain to verify.
 export async function notifyAppointmentStatus(appointment: Appointment) {
   const to = appointment.email?.trim();
   if (!to) return;
-
-  const apiKey = process.env["LOVABLE_API_KEY"];
-  if (!apiKey) {
-    console.error("[notify] Missing LOVABLE_API_KEY — skipping appointment status email.");
-    return;
-  }
 
   const copy = STATUS_COPY[appointment.status] ?? {
     subject: appointment.status,
@@ -64,37 +46,18 @@ export async function notifyAppointmentStatus(appointment: Appointment) {
     </div>
   `;
 
-  const from = defaultFrom();
-  const request = {
-    to,
-    from,
-    sender_domain: senderDomainFrom(from),
-    subject: `Your appointment is ${copy.subject} — Misha Eye Care & Optical`,
-    html,
-    text,
-    purpose: "transactional",
-  };
-  const baseKey = `appointment-${appointment.id}-${appointment.status}`;
-
   try {
-    await sendLovableEmail({ ...request, idempotency_key: baseKey }, { apiKey });
+    const { callProxy } = await import("@/integrations/mongo/proxy-client.server");
+    await callProxy("/send-email", {
+      method: "POST",
+      body: JSON.stringify({
+        to,
+        subject: `Your appointment is ${copy.subject} — Misha Eye Care & Optical`,
+        text,
+        html,
+      }),
+    });
   } catch (error) {
-    // A prior attempt under this same idempotency key already failed for
-    // some real reason (e.g. an unverified sender domain); the API locks
-    // that key and won't retry it, so we retry once under a fresh key to
-    // surface the actual underlying error instead of this generic 409.
-    if (error instanceof EmailAPIError && error.status === 409) {
-      try {
-        await sendLovableEmail(
-          { ...request, idempotency_key: `${baseKey}-${Date.now()}` },
-          { apiKey },
-        );
-        return;
-      } catch (retryError) {
-        console.error("[notify] Retry after stale idempotency key also failed:", retryError);
-        return;
-      }
-    }
     console.error("[notify] Failed to send appointment status email:", error);
   }
 }
