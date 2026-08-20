@@ -36,10 +36,20 @@ export async function callProxy<T>(path: string, init?: RequestInit): Promise<T>
   if (response.status === 204) return undefined as T;
 
   const text = await response.text();
-  const data = text ? JSON.parse(text) : undefined;
+  // A platform-level failure (e.g. the host's own gateway timeout) can return
+  // a plain-text body instead of our proxy's normal JSON error shape.
+  let data: unknown;
+  try {
+    data = text ? JSON.parse(text) : undefined;
+  } catch {
+    data = undefined;
+  }
 
   if (!response.ok) {
-    throw new ProxyError(response.status, data?.error ?? `Request to ${path} failed`);
+    const message =
+      (data as { error?: string } | undefined)?.error ||
+      (text ? text.slice(0, 200) : `Request to ${path} failed`);
+    throw new ProxyError(response.status, message);
   }
   return data as T;
 }

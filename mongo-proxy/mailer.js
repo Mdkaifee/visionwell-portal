@@ -10,7 +10,13 @@ function getTransporter() {
   }
   if (!transporter) {
     transporter = nodemailer.createTransport({
-      service: "gmail",
+      // Explicit host/port + STARTTLS on 587 rather than the "gmail" preset
+      // (which defaults to SSL on 465) — some hosts block 465 outbound while
+      // still allowing 587.
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      requireTLS: true,
       auth: { user, pass },
       // Some hosts throttle/block outbound SMTP; fail fast instead of hanging
       // the request (and the doctor's UI) for minutes.
