@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { getCollection } from "./db.js";
 
-const DOCTOR_EMAIL = (process.env.SEED_DOCTOR_EMAIL || "doctor@yopmail.com").toLowerCase();
+const DOCTOR_EMAIL = (process.env.SEED_DOCTOR_EMAIL || "mdkaifee8298@gmail.com").toLowerCase();
 const DOCTOR_PASSWORD = process.env.SEED_DOCTOR_PASSWORD;
 const DOCTOR_NAME = process.env.SEED_DOCTOR_NAME || "Dr. Misha";
 
