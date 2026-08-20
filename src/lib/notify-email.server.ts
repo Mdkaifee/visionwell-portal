@@ -15,6 +15,12 @@ function defaultFrom() {
   );
 }
 
+function senderDomainFrom(from: string): string {
+  const explicit = process.env["NOTIFICATIONS_SENDER_DOMAIN"];
+  if (explicit) return explicit;
+  return from.match(/@([^\s>]+)/)?.[1] ?? "mishaeyecare.in";
+}
+
 // Best-effort: a failed notification must never break the appointment update
 // itself, so every error is caught and logged here rather than thrown.
 export async function notifyAppointmentStatus(appointment: Appointment) {
@@ -58,9 +64,11 @@ export async function notifyAppointmentStatus(appointment: Appointment) {
     </div>
   `;
 
+  const from = defaultFrom();
   const request = {
     to,
-    from: defaultFrom(),
+    from,
+    sender_domain: senderDomainFrom(from),
     subject: `Your appointment is ${copy.subject} — Misha Eye Care & Optical`,
     html,
     text,
