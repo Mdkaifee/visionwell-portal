@@ -14,7 +14,195 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      appointments: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          notes: string | null
+          patient_name: string
+          phone: string
+          preferred_date: string | null
+          preferred_time: string | null
+          service: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          notes?: string | null
+          patient_name: string
+          phone: string
+          preferred_date?: string | null
+          preferred_time?: string | null
+          service?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          notes?: string | null
+          patient_name?: string
+          phone?: string
+          preferred_date?: string | null
+          preferred_time?: string | null
+          service?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      frames: {
+        Row: {
+          brand: string
+          colour: string
+          created_at: string
+          id: string
+          image_url: string | null
+          in_stock: boolean
+          material: string
+          name: string
+          price: number
+          shape: string
+          sort_order: number
+        }
+        Insert: {
+          brand?: string
+          colour?: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          in_stock?: boolean
+          material?: string
+          name: string
+          price?: number
+          shape?: string
+          sort_order?: number
+        }
+        Update: {
+          brand?: string
+          colour?: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          in_stock?: boolean
+          material?: string
+          name?: string
+          price?: number
+          shape?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      prescriptions: {
+        Row: {
+          add_power: string | null
+          age: number | null
+          created_at: string
+          created_by: string
+          diagnosis: string[]
+          file_path: string | null
+          follow_up_date: string | null
+          frame_advice: string | null
+          gender: string | null
+          id: string
+          left_axis: string | null
+          left_cyl: string | null
+          left_sph: string | null
+          lens_advice: string | null
+          notes: string | null
+          patient_name: string
+          pd: string | null
+          phone: string | null
+          right_axis: string | null
+          right_cyl: string | null
+          right_sph: string | null
+          updated_at: string
+        }
+        Insert: {
+          add_power?: string | null
+          age?: number | null
+          created_at?: string
+          created_by?: string
+          diagnosis?: string[]
+          file_path?: string | null
+          follow_up_date?: string | null
+          frame_advice?: string | null
+          gender?: string | null
+          id?: string
+          left_axis?: string | null
+          left_cyl?: string | null
+          left_sph?: string | null
+          lens_advice?: string | null
+          notes?: string | null
+          patient_name: string
+          pd?: string | null
+          phone?: string | null
+          right_axis?: string | null
+          right_cyl?: string | null
+          right_sph?: string | null
+          updated_at?: string
+        }
+        Update: {
+          add_power?: string | null
+          age?: number | null
+          created_at?: string
+          created_by?: string
+          diagnosis?: string[]
+          file_path?: string | null
+          follow_up_date?: string | null
+          frame_advice?: string | null
+          gender?: string | null
+          id?: string
+          left_axis?: string | null
+          left_cyl?: string | null
+          left_sph?: string | null
+          lens_advice?: string | null
+          notes?: string | null
+          patient_name?: string
+          pd?: string | null
+          phone?: string | null
+          right_axis?: string | null
+          right_cyl?: string | null
+          right_sph?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      services: {
+        Row: {
+          created_at: string
+          description: string
+          duration: string
+          id: string
+          name: string
+          price: string
+          sort_order: number
+          tagline: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          duration?: string
+          id?: string
+          name: string
+          price?: string
+          sort_order?: number
+          tagline?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          duration?: string
+          id?: string
+          name?: string
+          price?: string
+          sort_order?: number
+          tagline?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
