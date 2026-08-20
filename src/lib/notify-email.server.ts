@@ -1,4 +1,4 @@
-import { sendLovableEmail } from "@lovable.dev/email-js";
+import { sendLovableEmail, EmailAPIError } from "@lovable.dev/email-js";
 import type { Appointment } from "@/server-functions/types";
 
 const STATUS_COPY: Record<string, { subject: string; headline: string }> = {
@@ -58,20 +58,35 @@ export async function notifyAppointmentStatus(appointment: Appointment) {
     </div>
   `;
 
+  const request = {
+    to,
+    from: defaultFrom(),
+    subject: `Your appointment is ${copy.subject} — Misha Eye Care & Optical`,
+    html,
+    text,
+    purpose: "transactional",
+  };
+  const baseKey = `appointment-${appointment.id}-${appointment.status}`;
+
   try {
-    await sendLovableEmail(
-      {
-        to,
-        from: defaultFrom(),
-        subject: `Your appointment is ${copy.subject} — Misha Eye Care & Optical`,
-        html,
-        text,
-        purpose: "transactional",
-        idempotency_key: `appointment-${appointment.id}-${appointment.status}`,
-      },
-      { apiKey },
-    );
+    await sendLovableEmail({ ...request, idempotency_key: baseKey }, { apiKey });
   } catch (error) {
+    // A prior attempt under this same idempotency key already failed for
+    // some real reason (e.g. an unverified sender domain); the API locks
+    // that key and won't retry it, so we retry once under a fresh key to
+    // surface the actual underlying error instead of this generic 409.
+    if (error instanceof EmailAPIError && error.status === 409) {
+      try {
+        await sendLovableEmail(
+          { ...request, idempotency_key: `${baseKey}-${Date.now()}` },
+          { apiKey },
+        );
+        return;
+      } catch (retryError) {
+        console.error("[notify] Retry after stale idempotency key also failed:", retryError);
+        return;
+      }
+    }
     console.error("[notify] Failed to send appointment status email:", error);
   }
 }
