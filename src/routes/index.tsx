@@ -130,7 +130,7 @@ function Index() {
 
           <Reveal delay={140}>
             <div>
-              <p className="text-[11px] uppercase tracking-[0.3em] text-primary">Eye checkups</p>
+              <p className="text-[11px] uppercase tracking-[0.3em] text-primary">Services</p>
               <h2 className="mt-4 font-display text-4xl font-light leading-tight md:text-5xl">
                 A thorough exam, explained plainly
               </h2>

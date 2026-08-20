@@ -40,10 +40,15 @@ export const updateAppointment = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { callProxy } = await import("@/integrations/mongo/proxy-client.server");
     const { id, ...body } = data;
-    return callProxy<Appointment>(`/appointments/${id}`, {
+    const updated = await callProxy<Appointment>(`/appointments/${id}`, {
       method: "PATCH",
       body: JSON.stringify(body),
     });
+    if (data.status) {
+      const { notifyAppointmentStatus } = await import("@/lib/notify-email.server");
+      await notifyAppointmentStatus(updated);
+    }
+    return updated;
   });
 
 export const deleteAppointment = createServerFn({ method: "POST" })

@@ -23,7 +23,7 @@ export function SiteFooter() {
           <p className="text-[10px] uppercase tracking-[0.3em] text-foreground">Explore</p>
           <p>
             <Link to="/services" className="transition-colors hover:text-foreground">
-              Eye checkups
+              Services
             </Link>
           </p>
           <p>

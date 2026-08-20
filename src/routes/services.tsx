@@ -16,9 +16,7 @@ function ServicesPage() {
   return (
     <div className="mx-auto max-w-6xl px-5 py-20 md:py-28">
       <Reveal>
-        <p className="text-center text-[11px] uppercase tracking-[0.3em] text-primary">
-          Eye checkups
-        </p>
+        <p className="text-center text-[11px] uppercase tracking-[0.3em] text-primary">Services</p>
         <h1 className="mt-4 text-center font-display text-4xl font-light md:text-6xl">
           Every examination, done properly
         </h1>

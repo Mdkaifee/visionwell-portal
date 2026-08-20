@@ -28,10 +28,15 @@ Server-only — never prefix these with `VITE_`, and never commit real values:
 | `MONGO_PROXY_URL` | Base URL of the deployed `mongo-proxy` service |
 | `MONGO_PROXY_SECRET` | Shared secret, must match `PROXY_SECRET` on `mongo-proxy` |
 | `SESSION_SECRET` | Signs the doctor's login session cookie (32+ random chars) |
+| `NOTIFICATIONS_FROM_EMAIL` | Optional. `"Name <address@yourdomain>"` sender for appointment-status emails — the domain must be verified under Lovable Cloud → Emails, or sends will fail silently (logged, not thrown). Defaults to a placeholder `mishaeyecare.in` address. |
 
 For local development, put these in `.env.local` (already gitignored via the `*.local` rule in
 `.gitignore`). For the deployed site, add them as **server environment variables** in Lovable's
 project settings — not in any file in this repo.
+
+`LOVABLE_API_KEY` (auto-provisioned by Lovable, visible in Secrets) powers the appointment-status
+emails via `@lovable.dev/email-js` — see `src/lib/notify-email.server.ts`. No action needed unless
+you want to change the sender address.
 
 ## Development
 

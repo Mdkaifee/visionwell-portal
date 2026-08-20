@@ -47,7 +47,7 @@ function WorkspacePage() {
         <TabsList className="flex h-auto w-full flex-wrap gap-1 bg-secondary/60 p-1.5">
           <TabsTrigger value="appointments">Appointments</TabsTrigger>
           <TabsTrigger value="prescriptions">Prescriptions</TabsTrigger>
-          <TabsTrigger value="services">Eye checkups</TabsTrigger>
+          <TabsTrigger value="services">Services</TabsTrigger>
           <TabsTrigger value="frames">Optical</TabsTrigger>
           <TabsTrigger value="messages">Messages</TabsTrigger>
         </TabsList>
