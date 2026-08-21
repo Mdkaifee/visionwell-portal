@@ -8,8 +8,8 @@ export function SiteFooter() {
           <h3 className="font-display text-2xl">Misha Eye Care &amp; Optical</h3>
           <div className="my-4 h-px w-24 gold-rule" />
           <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">
-            A calm, unhurried clinic in Mohali/Chandigarh for eye examinations, spectacles and contact
-            lenses — with every prescription recorded digitally.
+            A calm, unhurried clinic in Mohali/Chandigarh for eye examinations, spectacles and
+            contact lenses — with every prescription recorded digitally.
           </p>
         </div>
         <div className="space-y-3 text-sm text-muted-foreground">
