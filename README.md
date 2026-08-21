@@ -23,19 +23,19 @@ Browser → this app (Cloudflare Workers) → mongo-proxy (Render) → MongoDB A
 
 Server-only — never prefix these with `VITE_`, and never commit real values:
 
-| Variable | Purpose |
-| --- | --- |
-| `MONGO_PROXY_URL` | Base URL of the deployed `mongo-proxy` service |
-| `MONGO_PROXY_SECRET` | Shared secret, must match `PROXY_SECRET` on `mongo-proxy` |
-| `SESSION_SECRET` | Signs the doctor's login session cookie (32+ random chars) |
+| Variable             | Purpose                                                    |
+| -------------------- | ---------------------------------------------------------- |
+| `MONGO_PROXY_URL`    | Base URL of the deployed `mongo-proxy` service             |
+| `MONGO_PROXY_SECRET` | Shared secret, must match `PROXY_SECRET` on `mongo-proxy`  |
+| `SESSION_SECRET`     | Signs the doctor's login session cookie (32+ random chars) |
 
 For local development, put these in `.env.local` (already gitignored via the `*.local` rule in
 `.gitignore`). For the deployed site, add them as **server environment variables** in Lovable's
 project settings — not in any file in this repo.
 
-Appointment-status emails are sent from `mongo-proxy` (via `GMAIL_USER`/`GMAIL_APP_PASSWORD` there
-— see [`mongo-proxy/README.md`](mongo-proxy/README.md)), not from this app directly, and need no
-env vars here.
+Appointment-status emails are sent from `mongo-proxy` via the Gmail API over HTTPS (Render blocks
+outbound SMTP) — see [`mongo-proxy/README.md`](mongo-proxy/README.md) for that setup. Not sent from
+this app directly, and need no env vars here.
 
 ## Development
 

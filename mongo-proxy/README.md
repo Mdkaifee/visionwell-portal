@@ -1,6 +1,6 @@
 # mongo-proxy
 
-A small always-on Express service that is the *only* thing allowed to talk to MongoDB directly.
+A small always-on Express service that is the _only_ thing allowed to talk to MongoDB directly.
 The main site (deployed on Cloudflare Workers via Lovable) calls this over plain HTTPS, because the
 native MongoDB driver does not work reliably from Cloudflare Workers.
 
@@ -8,18 +8,48 @@ Every route except `GET /health` requires header `x-proxy-secret: <PROXY_SECRET>
 never called from a browser — only from the main app's server code — so that single shared secret
 is the whole authorization model. Keep it secret.
 
-It also sends appointment-status emails (`POST /send-email`) through a real Gmail account via SMTP
-(`mailer.js`, using `nodemailer`) rather than a third-party transactional email API — that would
-require verifying a domain you own, which this project doesn't have. Sending "as" your own Gmail
-account needs no domain, just an **App Password**:
+It also sends appointment-status emails (`POST /send-email`, `mailer.js`) through the doctor's own
+Gmail account — but over the **Gmail REST API (HTTPS)**, not SMTP. Render blocks outbound SMTP
+entirely (confirmed: every port and IP-family combination timed out or was unreachable), so plain
+`nodemailer`-over-SMTP never had a path to work here. HTTPS isn't port-blocked, which is why the
+Gmail API route works instead.
 
-1. Turn on 2-Step Verification on the Google account you want to send from, if it isn't already:
-   https://myaccount.google.com/security
-2. Generate an App Password: https://myaccount.google.com/apppasswords (pick "Mail" / "Other").
-3. Set `GMAIL_USER` to that account's address and `GMAIL_APP_PASSWORD` to the 16-character password
-   it gives you (not your normal Google password).
+The tradeoff: this needs a Google OAuth2 refresh token, and because the OAuth consent screen is in
+Google's "Testing" mode (skipping their app-verification review, which the sensitive `gmail.send`
+scope would otherwise require — a multi-day process needing a privacy policy page etc.), **that
+refresh token expires after about 7 days.** Renewing it takes ~2 minutes; see "Renewing the refresh
+token" below. Going through verification for a token that never expires is possible later if this
+becomes annoying, but wasn't worth the extra setup up front.
 
-Personal Gmail accounts cap outgoing mail at roughly 500/day — far more than a small clinic needs.
+### One-time setup
+
+1. [Google Cloud Console](https://console.cloud.google.com/) → create a project.
+2. **APIs & Services → Library** → search "Gmail API" → Enable.
+3. **APIs & Services → OAuth consent screen**:
+   - User type: External
+   - Scopes: add `https://www.googleapis.com/auth/gmail.send`
+   - Test users: add the Gmail address you're sending from
+   - Save (leave it in "Testing" — publishing requires the verification review mentioned above)
+4. **APIs & Services → Credentials → Create Credentials → OAuth client ID**:
+   - Application type: **Web application**
+   - Authorized redirect URIs: add `https://developers.google.com/oauthplayground`
+   - Create → copy the **Client ID** and **Client Secret** it shows you.
+5. Set `GMAIL_USER` (the sending address), `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` from the above.
+
+### Getting (and renewing) the refresh token
+
+1. Open the [OAuth 2.0 Playground](https://developers.google.com/oauthplayground).
+2. Gear icon (top right) → check "Use your own OAuth credentials" → paste your Client ID/Secret.
+3. In the scopes list on the left, find/paste `https://www.googleapis.com/auth/gmail.send` →
+   **Authorize APIs**.
+4. Sign in with the Gmail account. Google will warn "Google hasn't verified this app" (expected,
+   since it's in Testing) → **Advanced → Go to [app name] (unsafe) → Allow**.
+5. Back in the Playground, click **Exchange authorization code for tokens** → copy the
+   **Refresh token** shown.
+6. Set that as `GOOGLE_REFRESH_TOKEN` in Render's environment variables.
+
+**Repeat steps 1–6 roughly every 7 days** to keep the token from going stale — it's the same couple
+of minutes each time.
 
 ## Local development
 
@@ -45,8 +75,9 @@ SEED_DOCTOR_PASSWORD='your-password' npm run seed
    - `MONGODB_URI` — your Atlas connection string.
    - `PROXY_SECRET` — a long random string (generate with `openssl rand -base64 32`). Use the same
      value in the main app's `MONGO_PROXY_SECRET` env var.
-   - `GMAIL_USER` / `GMAIL_APP_PASSWORD` — see above. Optional; appointment-status emails are
-     skipped (logged, not thrown) if these aren't set.
+   - `GMAIL_USER` / `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_REFRESH_TOKEN` — see
+     above. Optional; appointment-status emails are skipped (logged, not thrown) if these aren't
+     set.
 4. Once deployed, run the seed script once (Render Shell, or run it locally against the same
    `MONGODB_URI`).
 5. Copy the service's public URL (e.g. `https://misha-mongo-proxy.onrender.com`) into the main app's
