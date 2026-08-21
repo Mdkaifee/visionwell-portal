@@ -20,6 +20,10 @@ dist-ssr
 .wrangler/
 .dev.vars
 
+# OAuth client secret downloads (e.g. from Google Cloud Console) — never commit these
+client_secret_*.json
+*.apps.googleusercontent.com.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

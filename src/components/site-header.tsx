@@ -27,7 +27,7 @@ export function SiteHeader({ doctor }: { doctor: { email: string; name: string }
           <span className="leading-none">
             <span className="block font-display text-xl tracking-tight">Misha Eye Care</span>
             <span className="block text-[10px] uppercase tracking-[0.32em] text-muted-foreground">
-              &amp; Optical · Jalandhar
+              &amp; Optical · Mohali/Chandigarh
             </span>
           </span>
         </Link>

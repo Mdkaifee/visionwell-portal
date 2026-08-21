@@ -1,4 +1,4 @@
-# Misha Eye Care & Optical — Jalandhar
+# Misha Eye Care & Optical — India
 
 A multi-page site for the clinic: eye checkups, an optical/frames catalog, appointment booking,
 a contact form, and a doctor-only workspace for managing everything (services, frames,

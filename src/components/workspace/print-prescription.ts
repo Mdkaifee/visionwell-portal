@@ -49,7 +49,7 @@ export function printPrescription(rx: Prescription) {
       </head>
       <body>
         <h1>Misha Eye Care &amp; Optical</h1>
-        <p class="sub">Model Town Market, Jalandhar, Punjab 144003</p>
+        <p class="sub">Model Town Market, Mohali/Chandigarh, Punjab 144003</p>
         <hr class="rule" />
         ${row("Patient", rx.patientName)}
         ${row("Phone", rx.phone)}

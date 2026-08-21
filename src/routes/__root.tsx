@@ -85,18 +85,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Misha Eye Care & Optical · Jalandhar" },
+      { title: "Misha Eye Care & Optical · Mohali/Chandigarh" },
       {
         name: "description",
         content:
-          "Eye checkups, spectacles and contact lenses in Jalandhar, with digital prescriptions.",
+          "Eye checkups, spectacles and contact lenses in Mohali/Chandigarh, with digital prescriptions.",
       },
       { name: "author", content: "Misha Eye Care & Optical" },
-      { property: "og:title", content: "Misha Eye Care & Optical · Jalandhar" },
+      { property: "og:title", content: "Misha Eye Care & Optical · Mohali/Chandigarh" },
       {
         property: "og:description",
         content:
-          "Eye checkups, spectacles and contact lenses in Jalandhar, with digital prescriptions.",
+          "Eye checkups, spectacles and contact lenses in Mohali/Chandigarh, with digital prescriptions.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

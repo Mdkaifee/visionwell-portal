@@ -58,7 +58,7 @@ function Index() {
           <Reveal>
             <span className="inline-flex items-center gap-2 rounded-full border border-gold/60 bg-gold-soft/60 px-4 py-1.5 text-[11px] uppercase tracking-[0.28em] text-accent-foreground">
               <Sparkles className="size-3.5" />
-              Jalandhar&apos;s trusted eye care
+              Mohali/Chandigarh&apos;s trusted eye care
             </span>
           </Reveal>
 

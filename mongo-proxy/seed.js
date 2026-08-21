@@ -82,7 +82,7 @@ const frames = [
     inStock: true,
   },
   {
-    name: "Jalandhar Classic",
+    name: "Mohali Classic",
     brand: "Misha Heritage",
     material: "Metal",
     shape: "Round",

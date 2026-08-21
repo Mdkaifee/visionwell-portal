@@ -29,7 +29,7 @@ export async function notifyAppointmentStatus(appointment: Appointment) {
     when ? `Preferred time: ${when}` : "",
     "",
     "— Misha Eye Care & Optical",
-    "Model Town Market, Jalandhar, Punjab 144003",
+    "Model Town Market, Mohali/Chandigarh, Punjab 144003",
   ]
     .filter(Boolean)
     .join("\n");
@@ -41,7 +41,7 @@ export async function notifyAppointmentStatus(appointment: Appointment) {
       ${appointment.service ? `<p>Service: ${escapeHtml(appointment.service)}</p>` : ""}
       ${when ? `<p>Preferred time: ${escapeHtml(when)}</p>` : ""}
       <p style="margin-top:24px;color:#6b6b63;font-size:13px">
-        Misha Eye Care &amp; Optical<br/>Model Town Market, Jalandhar, Punjab 144003
+        Misha Eye Care &amp; Optical<br/>Model Town Market, Mohali/Chandigarh, Punjab 144003
       </p>
     </div>
   `;

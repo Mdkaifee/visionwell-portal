@@ -15,7 +15,7 @@ export const Route = createFileRoute("/contact")({
 });
 
 const details = [
-  { icon: MapPin, label: "Model Town Market, Jalandhar, Punjab 144003" },
+  { icon: MapPin, label: "Model Town Market, Mohali/Chandigarh, Punjab 144003" },
   { icon: Clock, label: "Mon – Sat · 10:00 AM – 8:00 PM · Sunday · 11:00 AM – 2:00 PM" },
   { icon: Phone, label: "+91 98140 00000" },
 ];
